@@ -11,7 +11,7 @@ $submit = Invoke-WebRequest -Method POST -Uri "$BaseUrl/jobs/weather" -ContentTy
 if ($submit.StatusCode -ne 202) {
 	Write-Error "Unexpected status code: $($submit.StatusCode)"
 	if ($submit.Content) { Write-Host $submit.Content }
-	exit1
+	exit 1
 }
 
 $resp = $submit.Content | ConvertFrom-Json
@@ -33,42 +33,46 @@ try {
 		$location = $builder
 	}
 }
-catch { }
+catch { 
+	# Ignore URI parse errors
+}
 
 Write-Host "Job submitted. Id=$jobId Location=$location"
 
 # Poll until completed or failed
 $maxAttempts = 30
 for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
- Start-Sleep -Seconds 2
- try {
+	if ($attempt -gt 1) { 
+		Start-Sleep -Seconds 2
+	}
+	try {
 		$pollParams = @{ Method = 'GET'; Uri = $location; SkipHttpErrorCheck = $true }
 		if ($SkipCert) { $pollParams['SkipCertificateCheck'] = $true }
 		$poll = Invoke-WebRequest @pollParams
- }
- catch {
+	}
+	catch {
 		Write-Warning "Request error: $($_.Exception.Message)"
 		continue
- }
- if ($poll.StatusCode -eq 202) {
+	}
+	if ($poll.StatusCode -eq 202) {
 		$statusObj = $poll.Content | ConvertFrom-Json
 		Write-Host "Attempt $($attempt): $($statusObj.status)" -ForegroundColor Yellow
 		continue
- }
- if ($poll.StatusCode -eq 200) {
+	}
+	if ($poll.StatusCode -eq 200) {
 		$job = $poll.Content | ConvertFrom-Json
 		Write-Host "Completed:" -ForegroundColor Green
 		$job | ConvertTo-Json -Depth 5
 		$job.Data | Format-Table -AutoSize
 		exit 0
- }
- if ($poll.StatusCode -eq 410) {
+	}
+	if ($poll.StatusCode -eq 410) {
 		Write-Error "Job expired or canceled"
 		exit 2
- }
- Write-Host "Unexpected status $($poll.StatusCode)"
- if ($poll.Content) { Write-Host $poll.Content }
+	}
+	Write-Host "Unexpected status $($poll.StatusCode)"
+	if ($poll.Content) { Write-Host $poll.Content }
 }
 
 Write-Error "Maximum attempts ($maxAttempts) reached without completion"
-exit3
+exit 3
