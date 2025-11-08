@@ -1,7 +1,5 @@
 using System.Linq;
-
 using api.Models;
-
 using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Services;
@@ -30,18 +28,24 @@ public class CachedJobStore : IJobStore
             SlidingExpiration = _sliding,
             Priority = priority
         };
-        options.RegisterPostEvictionCallback((key, value, reason, state) =>
-        {
-            if (key is string id)
+        options.RegisterPostEvictionCallback(
+            (key, value, reason, state) =>
             {
-                lock (_tombstoneLock)
+                if (key is string id)
                 {
-                    _tombstones.AddLast((id, DateTimeOffset.UtcNow));
-                    while (_tombstones.Count > _tombstoneLimit) _tombstones.RemoveFirst();
+                    lock (_tombstoneLock)
+                    {
+                        _tombstones.AddLast((id, DateTimeOffset.UtcNow));
+						while (_tombstones.Count > _tombstoneLimit)
+						{
+							_tombstones.RemoveFirst();
+						}
+                    }
+                    _logger.LogDebug("Job {JobId} evicted: {Reason}", id, reason);
                 }
-                _logger.LogDebug("Job {JobId} evicted: {Reason}", id, reason);
-            }
-        }, state: null);
+            },
+            state: null
+        );
         return options;
     }
 
@@ -60,7 +64,8 @@ public class CachedJobStore : IJobStore
 
     public JobResult? Get(string id)
     {
-        if (_cache.TryGetValue<JobResult>(id, out var job)) return job;
+        if (_cache.TryGetValue<JobResult>(id, out var job))
+            return job;
         return null;
     }
 
@@ -68,7 +73,8 @@ public class CachedJobStore : IJobStore
     {
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
-            if (job.Status is JobStatus.Completed or JobStatus.Failed) return false;
+            if (job.Status is JobStatus.Completed or JobStatus.Failed)
+                return false;
             job.Status = JobStatus.Canceled;
             job.CompletedAt = DateTimeOffset.UtcNow;
             ResetWithPriority(id, job, CacheItemPriority.Normal);

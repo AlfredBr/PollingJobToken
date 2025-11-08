@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-
 using api.Models;
 
 namespace api.Services;
@@ -22,7 +21,10 @@ public class InMemoryJobStore : IJobStore
     {
         if (_jobs.TryGetValue(id, out var job))
         {
-            if (job.Status is JobStatus.Completed or JobStatus.Failed) return false;
+			if (job.Status is JobStatus.Completed or JobStatus.Failed)
+			{
+				return false;
+			}
             job.Status = JobStatus.Canceled;
             job.CompletedAt = DateTimeOffset.UtcNow;
             return true;

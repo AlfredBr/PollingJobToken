@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using api.Models;
 using api.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
@@ -24,21 +24,27 @@ public class JobsController : ControllerBase
         var job = _jobstore.Get(id);
         if (job is null)
         {
-            // Distinguish expired vs never existed
-            if (_jobstore.WasRecentlyExpired(id))
-                return Problem(title: "Job expired", statusCode: StatusCodes.Status410Gone);
+			// Distinguish expired vs never existed
+			if (_jobstore.WasRecentlyExpired(id))
+			{
+				return Problem(title: "Job expired", statusCode: StatusCodes.Status410Gone);
+			}
             return NotFound();
         }
 
         return job.Status switch
         {
             JobStatus.Completed => Ok(job),
-            JobStatus.Failed => Problem(title: "Job failed", detail: job.Message, statusCode: StatusCodes.Status500InternalServerError),
+            JobStatus.Failed => Problem(
+                    title: "Job failed",
+                    detail: job.Message,
+                    statusCode: StatusCodes.Status500InternalServerError
+                ),
             JobStatus.Canceled => Problem(title: "Job canceled", statusCode: StatusCodes.Status410Gone),
             _ => new ObjectResult(new { status = job.Status.ToString(), jobId = job.JobId })
-            {
-                StatusCode = StatusCodes.Status202Accepted
-            }
+                {
+                    StatusCode = StatusCodes.Status202Accepted
+                }
         };
     }
 

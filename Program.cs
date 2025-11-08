@@ -1,6 +1,6 @@
-using Scalar.AspNetCore;
-using api.Services;
 using api.Models;
+using api.Services;
+using Scalar.AspNetCore;
 
 namespace api;
 
@@ -17,7 +17,10 @@ public class Program
         builder.Services.AddSingleton<IJobStore, CachedJobStore>();
 
         // Register processors
-        builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
+        builder.Services.AddSingleton<
+            IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>,
+            WeatherForecastJobProcessor
+        >();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
