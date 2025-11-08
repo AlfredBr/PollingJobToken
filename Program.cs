@@ -14,8 +14,9 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
 
-        // Swap => builder.Services.AddSingleton<IJobStore, InMemoryJobStore>();
-        builder.Services.AddSingleton<IJobStore, CachedJobStore>();
+        // Use desired JobStore implementation - only one should be registered
+        //builder.Services.AddSingleton<IJobStore, ConcurrentDictionaryJobStore>();
+        builder.Services.AddSingleton<IJobStore, MemoryCacheJobStore>();
 
         // Register processors
         builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();

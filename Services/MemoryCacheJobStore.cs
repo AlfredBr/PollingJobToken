@@ -4,17 +4,17 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Services;
 
-public class CachedJobStore : IJobStore
+public class MemoryCacheJobStore : IJobStore
 {
     private readonly IMemoryCache _cache;
-    private readonly ILogger<CachedJobStore> _logger;
+    private readonly ILogger<MemoryCacheJobStore> _logger;
     private readonly TimeSpan _absoluteLifetime = TimeSpan.FromMinutes(10);
     private readonly TimeSpan _sliding = TimeSpan.FromMinutes(1);
     private readonly int _tombstoneLimit = 200; // prevent unbounded growth
     private readonly LinkedList<(string JobId, DateTimeOffset ExpiredAt)> _tombstones = new();
     private readonly object _tombstoneLock = new();
 
-    public CachedJobStore(IMemoryCache cache, ILogger<CachedJobStore> logger)
+    public MemoryCacheJobStore(IMemoryCache cache, ILogger<MemoryCacheJobStore> logger)
     {
         _cache = cache;
         _logger = logger;
