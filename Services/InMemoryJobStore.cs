@@ -58,4 +58,6 @@ public class InMemoryJobStore : IJobStore
             job.CompletedAt = DateTimeOffset.UtcNow;
         }
     }
+
+    public bool WasRecentlyExpired(string id) => false; // no eviction in dictionary implementation
 }

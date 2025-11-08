@@ -11,7 +11,9 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllers();
-        builder.Services.AddSingleton<IJobStore, InMemoryJobStore>();
+        builder.Services.AddMemoryCache();
+        // Swap => builder.Services.AddSingleton<IJobStore, InMemoryJobStore>();
+        builder.Services.AddSingleton<IJobStore, CachedJobStore>();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();

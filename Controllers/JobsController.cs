@@ -29,15 +29,22 @@ public partial class JobsController : ControllerBase
         _ = Task.Run(() => ProcessJobAsync(job.JobId));
 
         var location = Url.ActionLink(nameof(GetJob), values: new { id = job.JobId }) ?? $"/jobs/{job.JobId}";
+        Response.Headers.RetryAfter = DefaultRetryAfter.TotalSeconds.ToString("F0");
         return Accepted(location, new { jobId = job.JobId });
     }
 
     // GET /jobs/{id}
     [HttpGet("{id}")]
-    public IActionResult GetJob(string jobId)
+    public IActionResult GetJob(string id)
     {
-        var job = _jobstore.Get(jobId);
-        if (job is null) return NotFound();
+        var job = _jobstore.Get(id);
+        if (job is null)
+        {
+            // Distinguish expired vs never existed
+            if (_jobstore.WasRecentlyExpired(id))
+                return Problem(title: "Job expired", statusCode: StatusCodes.Status410Gone);
+            return NotFound();
+        }
 
         return job.Status switch
         {
