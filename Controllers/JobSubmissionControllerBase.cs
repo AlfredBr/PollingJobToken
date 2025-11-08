@@ -42,8 +42,10 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
             }
         });
 
-        var location = Url.ActionLink(action: nameof(JobsController.GetJob), controller: "Jobs", values: new { id = job.JobId })
-        ?? $"/jobs/{job.JobId}";
+        var location = Url.ActionLink(
+            action: nameof(JobsController.GetJob), 
+            controller: "Jobs", 
+            values: new { id = job.JobId }) ?? $"/jobs/{job.JobId}";
         Response.Headers.RetryAfter = DefaultRetryAfter.TotalSeconds.ToString("F0");
         return Accepted(location, new { jobId = job.JobId });
     }

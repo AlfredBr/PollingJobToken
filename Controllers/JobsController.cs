@@ -36,11 +36,12 @@ public class JobsController : ControllerBase
         {
             JobStatus.Completed => Ok(job),
             JobStatus.Failed => Problem(
-                    title: "Job failed",
-                    detail: job.Message,
-                    statusCode: StatusCodes.Status500InternalServerError
-                ),
-            JobStatus.Canceled => Problem(title: "Job canceled", statusCode: StatusCodes.Status410Gone),
+                title: "Job failed",
+                detail: job.Message,
+                statusCode: StatusCodes.Status500InternalServerError),
+            JobStatus.Canceled => Problem(
+                title: "Job canceled", 
+                statusCode: StatusCodes.Status410Gone),
             _ => new ObjectResult(new { status = job.Status.ToString(), jobId = job.JobId })
                 {
                     StatusCode = StatusCodes.Status202Accepted
