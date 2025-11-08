@@ -10,6 +10,15 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Configure single-line console logging
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSimpleConsole(options =>
+        {
+            options.SingleLine = true;
+            options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ ";
+            options.UseUtcTimestamp = true;
+        });
+
         // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
