@@ -16,9 +16,7 @@ public class WeatherForecastJobProcessor
             {
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
                 var date = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
-                var rng = new Random(
-                    HashCode.Combine(request.City.GetHashCode(), date.GetHashCode())
-                );
+                var rng = new Random(HashCode.Combine(request.City.GetHashCode(), date.GetHashCode()));
                 var temperatureC = rng.Next(-10, 36);
                 var summaries = new[]
                 {

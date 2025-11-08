@@ -21,7 +21,8 @@ public class InMemoryJobStore : IJobStore
     {
         if (_jobs.TryGetValue(id, out var job))
         {
-			if (job.Status is JobStatus.Completed or JobStatus.Failed)
+            if (job is null) { return false; }
+            if (job.Status is JobStatus.Completed or JobStatus.Failed)
 			{
 				return false;
 			}
@@ -34,9 +35,13 @@ public class InMemoryJobStore : IJobStore
 
     public void SetProcessing(string id)
     {
-        if (_jobs.TryGetValue(id, out var job) && job.Status == JobStatus.Pending)
+        if (_jobs.TryGetValue(id, out var job))
         {
-            job.Status = JobStatus.Processing;
+            if (job is null) { return; }
+            if (job.Status == JobStatus.Pending)
+            {
+                job.Status = JobStatus.Processing;
+            }
         }
     }
 
@@ -44,6 +49,7 @@ public class InMemoryJobStore : IJobStore
     {
         if (_jobs.TryGetValue(id, out var job))
         {
+            if (job is null) { return; }
             job.Status = JobStatus.Completed;
             job.Data = data;
             job.Message = message;
@@ -55,6 +61,7 @@ public class InMemoryJobStore : IJobStore
     {
         if (_jobs.TryGetValue(id, out var job))
         {
+            if (job is null) { return; }
             job.Status = JobStatus.Failed;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;

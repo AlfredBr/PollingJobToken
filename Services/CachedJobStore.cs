@@ -64,8 +64,7 @@ public class CachedJobStore : IJobStore
 
     public JobResult? Get(string id)
     {
-        if (_cache.TryGetValue<JobResult>(id, out var job))
-            return job;
+        if (_cache.TryGetValue<JobResult>(id, out var job)) { return job; }
         return null;
     }
 
@@ -73,8 +72,8 @@ public class CachedJobStore : IJobStore
     {
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
-            if (job.Status is JobStatus.Completed or JobStatus.Failed)
-                return false;
+            if (job is null) { return false; }
+            if (job.Status is JobStatus.Completed or JobStatus.Failed) { return false; }
             job.Status = JobStatus.Canceled;
             job.CompletedAt = DateTimeOffset.UtcNow;
             ResetWithPriority(id, job, CacheItemPriority.Normal);
@@ -85,10 +84,14 @@ public class CachedJobStore : IJobStore
 
     public void SetProcessing(string id)
     {
-        if (_cache.TryGetValue<JobResult>(id, out var job) && job.Status == JobStatus.Pending)
+        if (_cache.TryGetValue<JobResult>(id, out var job))
         {
-            job.Status = JobStatus.Processing;
-            ResetWithPriority(id, job, CacheItemPriority.NeverRemove);
+            if (job is null) { return; }
+            if (job.Status == JobStatus.Pending)
+            {
+                job.Status = JobStatus.Processing;
+                ResetWithPriority(id, job, CacheItemPriority.NeverRemove);
+            }
         }
     }
 
@@ -96,6 +99,7 @@ public class CachedJobStore : IJobStore
     {
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
+            if (job is null) { return; }
             job.Status = JobStatus.Completed;
             job.Data = data;
             job.Message = message;
@@ -108,6 +112,7 @@ public class CachedJobStore : IJobStore
     {
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
+            if (job is null) { return; }
             job.Status = JobStatus.Failed;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;
