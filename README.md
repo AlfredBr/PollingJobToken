@@ -115,7 +115,7 @@ Run `scripts/demo-weather.ps1` to see the polling pattern end-to-end. The script
 
 ## References
 
-- Microsoft REST API Guidelines (long-running operations section)
+- Microsoft REST API Guidelines(https://github.com/microsoft/api-guidelines) (long-running operations section)
 - Google Cloud API Design Guide (operation resources)
 
 These documents inspired the token-based polling approach implemented here.
