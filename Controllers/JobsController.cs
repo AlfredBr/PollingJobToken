@@ -6,31 +6,15 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("jobs")]
-public partial class JobsController : ControllerBase
+public class JobsController : ControllerBase
 {
     private readonly IJobStore _jobstore;
     private readonly ILogger<JobsController> _logger;
-    private static readonly TimeSpan DefaultRetryAfter = TimeSpan.FromSeconds(2);
 
     public JobsController(IJobStore store, ILogger<JobsController> logger)
     {
         _jobstore = store;
         _logger = logger;
-    }
-
-    // POST /jobs ->202 Accepted with token (jobId) and Location to poll
-    [HttpPost]
-    public ActionResult<JobResult> SubmitJob()
-    {
-        var job = _jobstore.Create();
-
-        // Kick off work asynchronously (partial method to implement later)
-        // The partial method can be implemented in another file to process the job
-        _ = Task.Run(() => ProcessJobAsync(job.JobId));
-
-        var location = Url.ActionLink(nameof(GetJob), values: new { id = job.JobId }) ?? $"/jobs/{job.JobId}";
-        Response.Headers.RetryAfter = DefaultRetryAfter.TotalSeconds.ToString("F0");
-        return Accepted(location, new { jobId = job.JobId });
     }
 
     // GET /jobs/{id}
@@ -65,7 +49,4 @@ public partial class JobsController : ControllerBase
         var ok = _jobstore.TryCancel(id);
         return ok ? NoContent() : NotFound();
     }
-
-    // Partial method for background job work.
-    private partial Task ProcessJobAsync(string jobId);
 }
