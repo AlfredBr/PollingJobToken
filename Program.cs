@@ -13,14 +13,12 @@ public class Program
         // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
+
         // Swap => builder.Services.AddSingleton<IJobStore, InMemoryJobStore>();
         builder.Services.AddSingleton<IJobStore, CachedJobStore>();
 
         // Register processors
-        builder.Services.AddSingleton<
-            IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>,
-            WeatherForecastJobProcessor
-        >();
+        builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();

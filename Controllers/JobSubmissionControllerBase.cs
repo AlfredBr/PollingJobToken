@@ -8,13 +8,13 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
 {
     private static readonly TimeSpan DefaultRetryAfter = TimeSpan.FromSeconds(2);
     protected readonly IJobStore _jobstore;
-    protected readonly IJobProcessor<TRequest, TResult> _processor;
+    protected readonly IJobProcessor<TRequest, TResult> _jobprocessor;
     protected readonly ILogger _logger;
 
     protected JobSubmissionControllerBase(IJobStore jobstore, IJobProcessor<TRequest, TResult> processor, ILogger logger)
     {
         _jobstore = jobstore;
-        _processor = processor;
+        _jobprocessor = processor;
         _logger = logger;
     }
 
@@ -27,7 +27,7 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
             try
             {
                 _jobstore.SetProcessing(job.JobId);
-                var result = await _processor.RunAsync(request, HttpContext.RequestAborted);
+                var result = await _jobprocessor.RunAsync(request, HttpContext.RequestAborted);
                 _jobstore.SetCompleted(job.JobId, result, message: "Completed");
             }
             catch (OperationCanceledException)
