@@ -13,4 +13,6 @@ public interface IJobStore
 
     // Indicates if a job id recently existed but expired from cache.
     bool WasRecentlyExpired(string id);
+
+    void PurgeJob(string id);
 }

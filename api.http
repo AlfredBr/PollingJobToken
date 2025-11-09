@@ -1,6 +1,11 @@
 @api_HostAddress = http://localhost:5089
 
-GET {{api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{api_HostAddress}}/jobs/weather/
+Accept: */*
+Content-Type: application/json
 
+{
+  "city": "Denver",
+  "date": null
+}
 ###

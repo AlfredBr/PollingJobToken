@@ -1,5 +1,5 @@
-using System.Linq;
 using api.Models;
+
 using Microsoft.Extensions.Caching.Memory;
 
 namespace api.Services;
@@ -41,7 +41,7 @@ public class MemoryCacheJobStore : IJobStore
 							_tombstones.RemoveFirst();
 						}
                     }
-                    _logger.LogDebug("Job {JobId} evicted: {Reason}", id, reason);
+                    _logger.LogInformation("Job {JobId} evicted: {Reason}", id, reason);
                 }
             },
             state: null
@@ -126,6 +126,17 @@ public class MemoryCacheJobStore : IJobStore
         lock (_tombstoneLock)
         {
             return _tombstones.Any(t => t.JobId == id && t.ExpiredAt >= cutoff);
+        }
+    }
+
+    public void PurgeJob(string id)
+    {
+        // Attempt to remove the item explicitly. Eviction callback will create a tombstone.
+        // We only call Remove if it exists to avoid unnecessary eviction callback overhead.
+        if (_cache.TryGetValue<JobResult>(id, out _))
+        {
+            _logger.LogWarning("Purging job {JobId} from memory cache", id);
+            _cache.Remove(id);
         }
     }
 }

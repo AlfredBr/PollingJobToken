@@ -29,7 +29,7 @@ try {
 	$baseUri = [Uri]$BaseUrl
 	$locUri = [Uri]$location
 	if ($baseUri.Scheme -ne $locUri.Scheme) {
-		$builder = "$($baseUri.Scheme)://$($locUri.Host):$($locUri.Port)$($locUri.AbsolutePath)"
+		$builder = "$("+$baseUri.Scheme+")://$("+$locUri.Host+"):$($locUri.Port)$($locUri.AbsolutePath)"
 		$location = $builder
 	}
 }
@@ -56,7 +56,7 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 	}
 	if ($poll.StatusCode -eq 202) {
 		$statusObj = $poll.Content | ConvertFrom-Json
-		Write-Host "Attempt $($attempt): $($statusObj.status)" -ForegroundColor Yellow
+		Write-Host "Attempt $($attempt): $($statusObj.status)" -ForegroundColor DarkGray
 		continue
 	}
 	if ($poll.StatusCode -eq 200) {
@@ -74,5 +74,29 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 	if ($poll.Content) { Write-Host $poll.Content }
 }
 
-Write-Error "Maximum attempts ($maxAttempts) reached without completion"
-exit 3
+# If we reach here, attempts were exceeded: cancel then purge the job
+try {
+	Write-Warning "Maximum attempts (${maxAttempts}) reached. Canceling job. Id=${jobId}"
+	$cancelParams = @{ Method = 'DELETE'; Uri = $location; SkipHttpErrorCheck = $true }
+	if ($SkipCert) { $cancelParams['SkipCertificateCheck'] = $true }
+	$cancelResp = Invoke-WebRequest @cancelParams
+	Write-Host "Cancel status: $($cancelResp.StatusCode)"
+	exit 3
+}
+catch {
+	Write-Warning "Cancel request error: $($_.Exception.Message)"
+}
+
+try {
+	$purgeUri = if ($location -match '\?') { "${location}&purge=true" } else { "${location}?purge=true" }
+	Write-Warning "Purging job. Id=${jobId} Location=${purgeUri}"
+	$purgeParams = @{ Method = 'DELETE'; Uri = $purgeUri; SkipHttpErrorCheck = $true }
+	if ($SkipCert) { $purgeParams['SkipCertificateCheck'] = $true }
+	$purgeResp = Invoke-WebRequest @purgeParams
+	Write-Host "Purge status: $($purgeResp.StatusCode)"
+	exit 3
+}
+catch {
+	Write-Warning "Purge request error: $($_.Exception.Message)"
+}
+

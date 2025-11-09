@@ -20,33 +20,60 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
 
     protected ActionResult SubmitJobInternal(TRequest request)
     {
+        // Create job token
         var job = _jobstore.Create();
+        _logger.LogInformation("SubmitJob received. jobType={JobType} jobId={JobId}", typeof(TRequest).Name, job.JobId);
 
+        // Kick off background processing
         _ = Task.Run(async () =>
         {
+            _logger.LogInformation("Job background task starting. jobId={JobId}", job.JobId);
             try
             {
                 _jobstore.SetProcessing(job.JobId);
+                _logger.LogInformation("Job status set to Processing. jobId={JobId}", job.JobId);
+
                 var result = await _jobprocessor.RunAsync(request, HttpContext.RequestAborted);
+                _logger.LogInformation("Job processor completed successfully. jobId={JobId} resultType={ResultType}", job.JobId, typeof(TResult).Name);
+
                 _jobstore.SetCompleted(job.JobId, result, message: "Completed");
+                _logger.LogInformation("Job status set to Completed. jobId={JobId}", job.JobId);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ocex)
             {
-                // If server is shutting down or request aborted, mark failed (or canceled if desired)
+                // Server shutting down or request aborted
+                _logger.LogWarning(ocex, "Job processing canceled. jobId={JobId}", job.JobId);
                 _jobstore.SetFailed(job.JobId, "Canceled");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing job {JobId}", job.JobId);
+                _logger.LogError(ex, "Job processing failed. jobId={JobId}", job.JobId);
                 _jobstore.SetFailed(job.JobId, ex.Message);
+            }
+            finally
+            {
+                // Read back final state for audit
+                var final = _jobstore.Get(job.JobId);
+                if (final is null)
+                {
+                    _logger.LogInformation("Job record no longer present at task end (consumed/removed). jobId={JobId}", job.JobId);
+                }
+                else
+                {
+                    _logger.LogInformation("Job task finished. jobId={JobId} finalStatus={Status}", job.JobId, final.Status);
+                }
             }
         });
 
+        // Compose polling location
         var location = Url.ActionLink(
-            action: nameof(JobsController.GetJob), 
-            controller: "Jobs", 
+            action: nameof(JobsController.GetJob),
+            controller: "Jobs",
             values: new { id = job.JobId }) ?? $"/jobs/{job.JobId}";
+
         Response.Headers.RetryAfter = DefaultRetryAfter.TotalSeconds.ToString("F0");
+        _logger.LogInformation("SubmitJob accepted. jobId={JobId} location={Location} retryAfterSeconds={RetryAfter}", job.JobId, location, DefaultRetryAfter.TotalSeconds.ToString("F0"));
+
         return Accepted(location, new { jobId = job.JobId });
     }
 }

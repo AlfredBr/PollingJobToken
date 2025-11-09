@@ -14,7 +14,8 @@ public class WeatherForecastJobProcessor
         return Task.Run(
             async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                // pretend this takes 15 seconds to produce ...
+                await Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
                 var date = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
                 var rng = new Random(HashCode.Combine(request.City.GetHashCode(), date.GetHashCode()));
                 var temperatureC = rng.Next(-10, 36);
@@ -37,7 +38,7 @@ public class WeatherForecastJobProcessor
                     City = request.City,
                     Date = date,
                     TemperatureC = temperatureC,
-                    Summary = summary
+                    Summary = $"The weather will be {summary}"
                 };
             },
             cancellationToken

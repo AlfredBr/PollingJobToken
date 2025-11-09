@@ -1,6 +1,6 @@
-using System.Collections.Concurrent;
-using System.Threading;
 using api.Models;
+
+using System.Collections.Concurrent;
 
 namespace api.Services;
 
@@ -18,9 +18,11 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
     private readonly int _tombstoneLimit = 200;
 
     private readonly Timer _sweepTimer;
+    private readonly ILogger<ConcurrentDictionaryJobStore> _logger;
 
-    public ConcurrentDictionaryJobStore()
+    public ConcurrentDictionaryJobStore(ILogger<ConcurrentDictionaryJobStore> logger)
     {
+        _logger = logger;
         // Start periodic sweep to cleanup old jobs
         _sweepTimer = new Timer(static state => ((ConcurrentDictionaryJobStore)state!).Sweep(), this, _sweepInterval, _sweepInterval);
     }
@@ -116,6 +118,7 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
                         _tombstones.AddLast((id, now));
                         while (_tombstones.Count > _tombstoneLimit) _tombstones.RemoveFirst();
                     }
+                    _logger.LogInformation("Job {JobId} expired and removed during sweep", id);
                 }
             }
         }
@@ -127,6 +130,21 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
             while (_tombstones.First is not null && _tombstones.First.Value.ExpiredAt < tombCutoff)
             {
                 _tombstones.RemoveFirst();
+            }
+        }
+    }
+
+    public void PurgeJob(string id)
+    {
+        // Hard delete regardless of status; record tombstone if it existed.
+        if (_jobs.TryRemove(id, out _))
+        {
+            var now = DateTimeOffset.UtcNow;
+            lock (_tombstoneLock)
+            {
+                _tombstones.AddLast((id, now));
+                while (_tombstones.Count > _tombstoneLimit) { _tombstones.RemoveFirst(); }
+                _logger.LogWarning("Purging job {JobId} from concurrent store", id);
             }
         }
     }
