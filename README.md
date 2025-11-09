@@ -2,7 +2,7 @@
 
 ## Overview
 
-You know the WeatherForecast code you get when you type `dotnet new webapi`?  Well, this sample starts with that but also demonstrates a token-based polling pattern for long-running operations (LROs). Instead of forcing clients to wait for work to finish synchronously, the API accepts a request, immediately acknowledges it with `202 Accepted`, and hands back an operation token that the caller can poll. The Microsoft REST API Guidelines and Google Cloud APIs both recommend this approach for operations that may take seconds or minutes to complete.
+You know the WeatherForecast code you get when you type `dotnet new webapi`?  Well, this sample starts with that but also demonstrates a token-based polling pattern for long-running operations (LROs). Instead of forcing clients to wait for work to finish synchronously, the API accepts a request, immediately acknowledges it with `202 Accepted`, and hands back an operation token that the caller can poll. You can easily replace the WeatherForecast code with your own long running code - you may not need to change anything else!  The Microsoft REST API Guidelines and Google Cloud APIs both recommend this approach for operations that may take seconds or minutes to complete.
 
 ## Why Polling?
 
