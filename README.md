@@ -24,6 +24,8 @@ This design decouples client responsiveness from job duration, supports retries 
 - `Services/IJobProcessor.cs` and implementations represent long-running work.
 - `Services/IJobStore.cs` encapsulates job persistence; `InMemoryJobStore` and `CachedJobStore` illustrate different storage approaches.
 - `Models/JobResult.cs` and `Models/JobStatus.cs` define the data contracts returned by the API.
+
+## App specific code
 - `Models/WeatherForecastRequest.cs` and `Models/WeatherForecastResponse.cs` capture the polling job input and payload delivered on completion.
 
 ## Prerequisites
