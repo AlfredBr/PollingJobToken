@@ -27,6 +27,7 @@ This design decouples client responsiveness from job duration, supports retries 
 
 ## App specific code
 - `Models/WeatherForecastRequest.cs` and `Models/WeatherForecastResponse.cs` capture the polling job input and payload delivered on completion.
+- `Services/WeatherForecastJobProcessor.cs` is the long running process -- replace this with your code.
 
 ## Prerequisites
 
