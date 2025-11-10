@@ -11,9 +11,6 @@
 
   <ItemGroup>
     <Content Include=".template.config\template.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include=".template.config\templateignore" />
   </ItemGroup>
 
