@@ -2,7 +2,9 @@ using api.AppModels;
 using api.AppServices;
 using api.Services;
 
+#if (EnableApiDocs)
 using Scalar.AspNetCore;
+#endif
 
 namespace api;
 
@@ -33,16 +35,20 @@ public class Program
         builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
         builder.Services.AddSingleton<IJobProcessor<LotteryNumberRequest, LotteryNumberResponse>, LotteryNumberJobProcessor>();
 
+#if (EnableApiDocs)
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+#endif
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
+#if (EnableApiDocs)
             app.MapOpenApi();
             app.MapScalarApiReference();
+#endif
         }
 
         app.UseHttpsRedirection();

@@ -1,9 +1,9 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "Alfred Broderick",
+  "author": "Alfred Broderick (https://www.alfredbr.dev)",
   "classifications": [ "Web", "WebAPI", "API", "Service", "Polling", "Async", "LRO" ],
   "identity": "AlfredBr.Templates.PollingJobTokenApi",
-  "name": "Polling Job Token API",
+  "name": "Polling Job Token Web API",
   "description": "A .NET Web API template implementing token-based polling pattern for long-running operations (LROs)",
   "shortName": "webapi-polling",
   "sourceName": "PollingJobToken",
@@ -44,11 +44,11 @@
       "defaultValue": "net10.0",
       "description": "The target framework for the project"
     },
-    "EnableSwagger": {
+    "EnableApiDocs": {
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": "true",
-      "description": "Enable Swagger/OpenAPI documentation"
+      "description": "Enable API documentation (OpenAPI/Scalar)"
     },
     "IncludeSampleJobs": {
       "type": "parameter",
