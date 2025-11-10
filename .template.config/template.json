@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Alfred Broderick",
+  "classifications": [ "Web", "WebAPI", "API", "Service", "Polling", "Async", "LRO" ],
+  "identity": "AlfredBr.Templates.PollingJobApi",
+  "name": "Polling Job Token API",
+  "description": "A .NET Web API template implementing token-based polling pattern for long-running operations (LROs)",
+  "shortName": "webapi-polling",
+  "sourceName": "api",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "RootNamespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Company.Product.Service",
+      "description": "The root namespace for the generated project"
+    },
+    "ServiceGuid": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "SERVICE-GUID-PLACEHOLDER"
+    },
+    "TargetFramework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net10.0",
+          "description": ".NET 10"
+        },
+        {
+          "choice": "net9.0", 
+          "description": ".NET 9"
+        },
+        {
+          "choice": "net8.0",
+          "description": ".NET 8 LTS"
+        }
+      ],
+      "defaultValue": "net10.0",
+      "description": "The target framework for the project"
+    },
+    "EnableSwagger": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Enable Swagger/OpenAPI documentation"
+    },
+    "IncludeSampleJobs": {
+      "type": "parameter", 
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include sample job implementations (Weather and Lottery)"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!IncludeSampleJobs)",
+          "exclude": [
+            "AppControllers/**",
+            "AppModels/**", 
+            "AppServices/**",
+            "AppScripts/**"
+          ]
+        }
+      ]
+    }
+  ],
+  "primaryOutputs": [
+    { "path": "api.csproj" }
+  ],
+  "postActions": [
+    {
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "args": {
+        "executable": "dotnet",
+        "args": "restore"
+      },
+      "description": "Restore NuGet packages",
+      "manualInstructions": [ 
+        { "text": "Run 'dotnet restore' to restore NuGet packages." } 
+      ],
+      "continueOnError": true
+    },
+    {
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "args": {
+        "executable": "dotnet",
+        "args": "build"
+      },
+      "description": "Build the project to verify setup",
+      "manualInstructions": [ 
+        { "text": "Run 'dotnet build' to verify the project builds successfully." } 
+      ],
+      "continueOnError": true
+    }
+  ]
+}

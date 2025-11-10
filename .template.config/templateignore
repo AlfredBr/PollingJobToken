@@ -1,0 +1,27 @@
+# Git directories and files
+.git/
+.gitignore
+
+# Template config (don't include the template config in generated projects)
+.template.config/
+
+# Build outputs
+bin/
+obj/
+.vs/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE files
+.vscode/
+.idea/
+
+# Package files
+*.nupkg
+packages/
+
+.template.config/
