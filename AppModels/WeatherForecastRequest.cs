@@ -1,4 +1,4 @@
-namespace api.Models;
+namespace api.AppModels;
 
 public class WeatherForecastRequest
 {

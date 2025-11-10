@@ -1,6 +1,7 @@
-using api.Models;
+using api.AppModels;
+using api.Services;
 
-namespace api.Services;
+namespace api.AppServices;
 
 public class WeatherForecastJobProcessor
     : IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>

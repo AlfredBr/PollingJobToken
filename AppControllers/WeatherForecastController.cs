@@ -1,8 +1,10 @@
-using api.Models;
+using api.AppModels;
+using api.Controllers;
 using api.Services;
+
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Controllers;
+namespace api.AppControllers;
 
 [ApiController]
 [Route("jobs/weather")]
