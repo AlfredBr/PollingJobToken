@@ -8,6 +8,8 @@
     <UserSecretsId>351e9cb5-78b6-43d3-b1db-8e7a615d2048</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <!-- Suppress preview version warning for template -->
+    <NoWarn>$(NoWarn);NETSDK1057</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
