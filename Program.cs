@@ -1,5 +1,3 @@
-using api.AppModels;
-using api.AppServices;
 using api.Services;
 
 #if (EnableApiDocs)
@@ -31,9 +29,14 @@ public class Program
         //builder.Services.AddSingleton<IJobStore, ConcurrentDictionaryJobStore>();
         builder.Services.AddSingleton<IJobStore, MemoryCacheJobStore>();
 
+#if (IncludeSampleJobs)
+        using api.AppModels;
+        using api.AppServices;
+
         // Register processors
         builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
         builder.Services.AddSingleton<IJobProcessor<LotteryNumberRequest, LotteryNumberResponse>, LotteryNumberJobProcessor>();
+#endif
 
 #if (EnableApiDocs)
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
