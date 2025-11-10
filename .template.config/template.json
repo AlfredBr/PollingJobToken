@@ -6,7 +6,7 @@
   "name": "Polling Job Token API",
   "description": "A .NET Web API template implementing token-based polling pattern for long-running operations (LROs)",
   "shortName": "webapi-polling",
-  "sourceName": "api",
+  "sourceName": "PollingJobToken",
   "preferNameDirectory": true,
   "tags": {
     "language": "C#",
@@ -33,7 +33,7 @@
           "description": ".NET 10"
         },
         {
-          "choice": "net9.0", 
+          "choice": "net9.0",
           "description": ".NET 9"
         },
         {
@@ -51,7 +51,7 @@
       "description": "Enable Swagger/OpenAPI documentation"
     },
     "IncludeSampleJobs": {
-      "type": "parameter", 
+      "type": "parameter",
       "datatype": "bool",
       "defaultValue": "true",
       "description": "Include sample job implementations (Weather and Lottery)"
@@ -64,41 +64,12 @@
           "condition": "(!IncludeSampleJobs)",
           "exclude": [
             "AppControllers/**",
-            "AppModels/**", 
+            "AppModels/**",
             "AppServices/**",
             "AppScripts/**"
           ]
         }
       ]
-    }
-  ],
-  "primaryOutputs": [
-    { "path": "api.csproj" }
-  ],
-  "postActions": [
-    {
-      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
-      "args": {
-        "executable": "dotnet",
-        "args": "restore"
-      },
-      "description": "Restore NuGet packages",
-      "manualInstructions": [ 
-        { "text": "Run 'dotnet restore' to restore NuGet packages." } 
-      ],
-      "continueOnError": true
-    },
-    {
-      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
-      "args": {
-        "executable": "dotnet",
-        "args": "build"
-      },
-      "description": "Build the project to verify setup",
-      "manualInstructions": [ 
-        { "text": "Run 'dotnet build' to verify the project builds successfully." } 
-      ],
-      "continueOnError": true
     }
   ]
 }
