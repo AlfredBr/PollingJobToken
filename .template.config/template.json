@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "Alfred Broderick",
   "classifications": [ "Web", "WebAPI", "API", "Service", "Polling", "Async", "LRO" ],
-  "identity": "AlfredBr.Templates.PollingJobApi",
+  "identity": "AlfredBr.Templates.PollingJobTokenApi",
   "name": "Polling Job Token API",
   "description": "A .NET Web API template implementing token-based polling pattern for long-running operations (LROs)",
   "shortName": "webapi-polling",
