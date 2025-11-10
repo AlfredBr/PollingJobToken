@@ -1,3 +1,5 @@
+using api.AppModels;
+using api.AppServices;
 using api.Services;
 
 #if (EnableApiDocs)
@@ -30,9 +32,6 @@ public class Program
         builder.Services.AddSingleton<IJobStore, MemoryCacheJobStore>();
 
 #if (IncludeSampleJobs)
-        using api.AppModels;
-        using api.AppServices;
-
         // Register processors
         builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
         builder.Services.AddSingleton<IJobProcessor<LotteryNumberRequest, LotteryNumberResponse>, LotteryNumberJobProcessor>();

@@ -17,6 +17,7 @@
       "type": "parameter",
       "datatype": "text",
       "defaultValue": "Company.Product.Service",
+      "replaces": "api",
       "description": "The root namespace for the generated project"
     },
     "ServiceGuid": {
