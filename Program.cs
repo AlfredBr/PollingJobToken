@@ -3,6 +3,7 @@ using PollingJobToken.AppServices;
 using PollingJobToken.Services;
 
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 namespace PollingJobToken;
 
@@ -22,7 +23,13 @@ public class Program
         });
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services
+            .AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Serialize enums as strings globally
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         builder.Services.AddMemoryCache();
 
         // Use desired JobStore implementation - only one should be registered
