@@ -9,17 +9,22 @@
     <DockerfileContext>.</DockerfileContext>
     <!-- Suppress preview version warning for template -->
     <NoWarn>$(NoWarn);NETSDK1057</NoWarn>
+    <!-- Template package metadata -->
+    <PackageType>Template</PackageType>
+    <Authors>Alfred Broderick</Authors>
+    <PackageId>AlfredBr.Templates.PollingJobTokenApi</PackageId>
+    <Description>A .NET Web API template implementing token-based polling pattern for long-running operations (LROs).</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include=".template.config\template.json" />
-    <None Include=".template.config\templateignore" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.10.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>
