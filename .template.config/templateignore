@@ -3,7 +3,7 @@
 .gitignore
 
 # Template config (don't include the template config in generated projects)
-.template.config/
+#.template.config/
 
 # Build outputs
 bin/
