@@ -1,8 +1,7 @@
-using api.Models;
-
+using PollingJobToken.Models;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace api.Services;
+namespace PollingJobToken.Services;
 
 public class MemoryCacheJobStore : IJobStore
 {

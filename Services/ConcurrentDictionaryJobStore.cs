@@ -1,8 +1,7 @@
-using api.Models;
-
+using PollingJobToken.Models;
 using System.Collections.Concurrent;
 
-namespace api.Services;
+namespace PollingJobToken.Services;
 
 public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
 {

@@ -1,4 +1,4 @@
-namespace api.AppModels;
+namespace PollingJobToken.AppModels;
 
 public class WeatherForecastRequest
 {

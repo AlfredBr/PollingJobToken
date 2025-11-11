@@ -1,6 +1,6 @@
-using api.Models;
+using PollingJobToken.Models;
 
-namespace api.Services;
+namespace PollingJobToken.Services;
 
 public interface IJobStore
 {

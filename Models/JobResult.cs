@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace api.Models;
+namespace PollingJobToken.Models;
 
 public class JobResult
 {

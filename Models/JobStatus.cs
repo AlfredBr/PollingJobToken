@@ -1,4 +1,4 @@
-namespace api.Models;
+namespace PollingJobToken.Models;
 
 public enum JobStatus
 {

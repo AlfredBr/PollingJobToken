@@ -1,12 +1,10 @@
-using api.AppModels;
-using api.AppServices;
-using api.Services;
+using PollingJobToken.AppModels;
+using PollingJobToken.AppServices;
+using PollingJobToken.Services;
 
-#if (EnableApiDocs)
 using Scalar.AspNetCore;
-#endif
 
-namespace api;
+namespace PollingJobToken;
 
 public class Program
 {
@@ -31,26 +29,20 @@ public class Program
         //builder.Services.AddSingleton<IJobStore, ConcurrentDictionaryJobStore>();
         builder.Services.AddSingleton<IJobStore, MemoryCacheJobStore>();
 
-#if (IncludeSampleJobs)
         // Register processors
         builder.Services.AddSingleton<IJobProcessor<WeatherForecastRequest, WeatherForecastResponse>, WeatherForecastJobProcessor>();
         builder.Services.AddSingleton<IJobProcessor<LotteryNumberRequest, LotteryNumberResponse>, LotteryNumberJobProcessor>();
-#endif
 
-#if (EnableApiDocs)
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
-#endif
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
-#if (EnableApiDocs)
             app.MapOpenApi();
             app.MapScalarApiReference();
-#endif
         }
 
         app.UseHttpsRedirection();

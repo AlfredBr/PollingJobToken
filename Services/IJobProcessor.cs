@@ -1,4 +1,4 @@
-namespace api.Services;
+namespace PollingJobToken.Services;
 
 public interface IJobProcessor<TRequest, TResult>
 {

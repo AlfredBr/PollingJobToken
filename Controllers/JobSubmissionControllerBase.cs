@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using api.Services;
+using PollingJobToken.Services;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 
-namespace api.Controllers;
+namespace PollingJobToken.Controllers;
 
 // Base class to submit typed jobs that produce typed results
 public abstract class JobSubmissionControllerBase<TRequest, TResult> : ControllerBase

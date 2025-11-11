@@ -55,7 +55,7 @@ for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
 	}
 	if ($poll.StatusCode -eq 202) {
 		$statusObj = $poll.Content | ConvertFrom-Json
-		Write-Host "Attempt $($attempt): $($statusObj.status)" -ForegroundColor Yellow
+		Write-Host "Attempt $($attempt): $($statusObj.status)" -ForegroundColor DarkGray
 		continue
 	}
 	if ($poll.StatusCode -eq 200) {

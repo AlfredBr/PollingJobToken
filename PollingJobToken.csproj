@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
-    <TargetFramework Condition="'$(TargetFramework)' != ''">$(TargetFramework)</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>351e9cb5-78b6-43d3-b1db-8e7a615d2048</UserSecretsId>
+    <UserSecretsId>SERVICE-GUID-PLACEHOLDER</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <!-- Suppress preview version warning for template -->
@@ -18,9 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.2.25502.107" Condition="'$(TargetFramework)' == 'net10.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" Condition="'$(TargetFramework)' == 'net9.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" Condition="'$(TargetFramework)' == 'net8.0'" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
     <!--#if (EnableApiDocs)-->
     <PackageReference Include="Scalar.AspNetCore" Version="2.10.1" />

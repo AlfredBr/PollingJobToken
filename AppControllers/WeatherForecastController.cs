@@ -1,10 +1,10 @@
-using api.AppModels;
-using api.Controllers;
-using api.Services;
+using PollingJobToken.AppModels;
+using PollingJobToken.Controllers;
+using PollingJobToken.Services;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.AppControllers;
+namespace PollingJobToken.AppControllers;
 
 [ApiController]
 [Route("jobs/weather")]

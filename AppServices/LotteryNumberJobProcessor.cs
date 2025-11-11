@@ -1,7 +1,7 @@
-using api.AppModels;
-using api.Services;
+using PollingJobToken.AppModels;
+using PollingJobToken.Services;
 
-namespace api.AppServices;
+namespace PollingJobToken.AppServices;
 
 public class LotteryNumberJobProcessor
     : IJobProcessor<LotteryNumberRequest, LotteryNumberResponse>

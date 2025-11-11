@@ -13,64 +13,10 @@
     "type": "project"
   },
   "symbols": {
-    "RootNamespace": {
-      "type": "parameter",
-      "datatype": "text",
-      "defaultValue": "Company.Product.Service",
-      "replaces": "api",
-      "description": "The root namespace for the generated project"
-    },
     "ServiceGuid": {
       "type": "generated",
       "generator": "guid",
       "replaces": "SERVICE-GUID-PLACEHOLDER"
-    },
-    "TargetFramework": {
-      "type": "parameter",
-      "datatype": "choice",
-      "choices": [
-        {
-          "choice": "net10.0",
-          "description": ".NET 10"
-        },
-        {
-          "choice": "net9.0",
-          "description": ".NET 9"
-        },
-        {
-          "choice": "net8.0",
-          "description": ".NET 8 LTS"
-        }
-      ],
-      "defaultValue": "net10.0",
-      "description": "The target framework for the project"
-    },
-    "EnableApiDocs": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Enable API documentation (OpenAPI/Scalar)"
-    },
-    "IncludeSampleJobs": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Include sample job implementations (Weather and Lottery)"
     }
-  },
-  "sources": [
-    {
-      "modifiers": [
-        {
-          "condition": "(!IncludeSampleJobs)",
-          "exclude": [
-            "AppControllers/**",
-            "AppModels/**",
-            "AppServices/**",
-            "AppScripts/**"
-          ]
-        }
-      ]
-    }
-  ]
+  }
 }

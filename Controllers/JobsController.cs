@@ -1,8 +1,8 @@
-using api.Models;
-using api.Services;
+using PollingJobToken.Models;
+using PollingJobToken.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Controllers;
+namespace PollingJobToken.Controllers;
 
 [ApiController]
 [Route("jobs")]
