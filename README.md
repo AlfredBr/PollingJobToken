@@ -26,8 +26,8 @@ This design decouples client responsiveness from job duration, supports retries 
 - `Models/JobResult.cs` and `Models/JobStatus.cs` define the data contracts returned by the API.
 
 ## App specific code
-- `Models/WeatherForecastRequest.cs` and `Models/WeatherForecastResponse.cs` capture the polling job input and payload delivered on completion.
-- `Services/WeatherForecastJobProcessor.cs` is the long running process -- replace this with your code.
+- `AppModels/WeatherForecastRequest.cs` and `Models/WeatherForecastResponse.cs` capture the polling job input and payload delivered on completion.
+- `AppServices/WeatherForecastJobProcessor.cs` is the long running process -- replace this with your code.
 
 ## Prerequisites
 
@@ -45,6 +45,13 @@ This design decouples client responsiveness from job duration, supports retries 
 	dotnet run --project api
 	```
 3. The service listens on the URL defined in `Properties/launchSettings.json` (by default `https://localhost:7182`).
+
+## Template Usage
+
+To create a new project based on this template, run the following command:
+```pwsh
+dotnet new webapi-polling -o <myProject>
+```
 
 ## Core Workflow
 
@@ -103,9 +110,11 @@ This design decouples client responsiveness from job duration, supports retries 
 
 | Method | Route            | Description                             |
 |--------|------------------|-----------------------------------------|
-| POST   | `/jobs`          | Submit a new long-running job request.  |
+| POST   | `/jobs/weather`  | Submit a new long-running job request.  |
+| POST   | `/jobs/lottery`  | Submit a new long-running job request.  |
 | GET    | `/jobs/{id}`     | Retrieve current status or final result.|
 | DELETE | `/jobs/{id}`     | Cancel a job that is still in progress. |
+| DELETE | `/jobs/{id}?purge=true` | Cancel and Delete a job from the cache. |
 
 Sample requests are captured in `api.http`, which can be executed with the VS Code REST Client extension or with tools such as `curl`/`Invoke-WebRequest`.
 
