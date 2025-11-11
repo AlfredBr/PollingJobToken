@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+
+using PollingJobToken.Models;
 using PollingJobToken.Services;
+
 using System.Runtime.CompilerServices;
-using System.Reflection;
 
 namespace PollingJobToken.Controllers;
 
 // Base class to submit typed jobs that produce typed results
-public abstract class JobSubmissionControllerBase<TRequest, TResult> : ControllerBase
+public abstract class JobSubmissionControllerBase<TRequest, TResult> : ControllerBase 
+    where TRequest : IJobRequest
 {
     private static readonly TimeSpan DefaultRetryAfter = TimeSpan.FromSeconds(2);
     protected readonly IJobStore _jobstore;
@@ -20,7 +23,7 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
         _logger = logger;
     }
 
-    protected ActionResult SubmitJobInternal(TRequest request, [CallerMemberName] string callerMethodName = "")
+    protected ActionResult SubmitJobInternal(TRequest request, [CallerMemberName] string callerMethodName = "") 
     {
         // Get the calling class name using reflection
         var callerClassName = GetType().Name;
@@ -28,6 +31,7 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
 
         // Create job token
         var job = _jobstore.Create();
+        job.Message = request.Message;
         _logger.LogInformation("SubmitJob received. jobType={JobType} jobId={JobId} caller={Caller}", typeof(TRequest).Name, job.JobId, callerInfo);
 
         // Kick off background processing
@@ -80,6 +84,6 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
         Response.Headers.RetryAfter = DefaultRetryAfter.TotalSeconds.ToString("F0");
         _logger.LogInformation("SubmitJob accepted. jobId={JobId} location={Location} retryAfterSeconds={RetryAfter} caller={Caller}", job.JobId, location, DefaultRetryAfter.TotalSeconds.ToString("F0"), callerInfo);
 
-        return Accepted(location, new { jobId = job.JobId });
+        return Accepted(location, new JobResponse(job));
     }
 }
