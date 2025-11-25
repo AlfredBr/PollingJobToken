@@ -8,4 +8,5 @@ public class JobResult
     public object? Data { get; set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? CompletedAt { get; set; }
+	public string Hostname => Environment.MachineName;
 }

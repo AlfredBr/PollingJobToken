@@ -57,7 +57,7 @@ public class JobsController : ControllerBase
 
             default:
                 _logger.LogInformation("GetJob in progress. jobId={JobId} status={Status}", id, job.Status);
-                return new ObjectResult(new { status = job.Status.ToString(), jobId = job.JobId })
+                return new ObjectResult(new { status = job.Status.ToString(), jobId = job.JobId, job.Hostname })
                 {
                     StatusCode = StatusCodes.Status202Accepted
                 };
@@ -113,5 +113,5 @@ public class JobsController : ControllerBase
         }
 
         return NotFound();
-    }    
+    }
 }
