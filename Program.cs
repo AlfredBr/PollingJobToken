@@ -46,13 +46,13 @@ public class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference();
-        }
+        //if (app.Environment.IsDevelopment())
+        //{
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+        //}
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection(); // Disabled for simplicity in local testing
         app.UseAuthorization();
         app.MapControllers();
         app.Run();

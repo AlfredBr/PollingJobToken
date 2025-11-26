@@ -19,9 +19,9 @@ public class LotteryNumberJobProcessor
                 await Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
                 var date = DateOnly.FromDateTime(DateTime.UtcNow.Date).AddDays(-3);
                 var rng = new Random(date.GetHashCode());
-                
+
                 return new LotteryNumberResponse
-                {                    
+                {
                     Date = date,
                     Numbers = Enumerable.Range(1, 48)
                         .OrderBy(_ => rng.Next())

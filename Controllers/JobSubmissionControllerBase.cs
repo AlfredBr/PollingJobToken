@@ -8,8 +8,8 @@ using System.Runtime.CompilerServices;
 namespace PollingJobToken.Controllers;
 
 // Base class to submit typed jobs that produce typed results
-public abstract class JobSubmissionControllerBase<TRequest, TResult> : ControllerBase 
-    where TRequest : IJobRequest
+public abstract class JobSubmissionControllerBase<TRequest, TResult> : ControllerBase
+    where TRequest : JobRequestBase
 {
     private static readonly TimeSpan DefaultRetryAfter = TimeSpan.FromSeconds(2);
     protected readonly IJobStore _jobstore;
@@ -23,7 +23,7 @@ public abstract class JobSubmissionControllerBase<TRequest, TResult> : Controlle
         _logger = logger;
     }
 
-    protected ActionResult SubmitJobInternal(TRequest request, [CallerMemberName] string callerMethodName = "") 
+    protected ActionResult SubmitJobInternal(TRequest request, [CallerMemberName] string callerMethodName = "")
     {
         // Get the calling class name using reflection
         var callerClassName = GetType().Name;

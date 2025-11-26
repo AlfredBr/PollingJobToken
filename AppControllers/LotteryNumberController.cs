@@ -20,7 +20,7 @@ public class LotteryNumberController
 
     [HttpPost]
     public ActionResult Submit([FromBody] LotteryNumberRequest request)
-    {        
+    {
         return SubmitJobInternal(request);
     }
 }

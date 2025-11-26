@@ -11,5 +11,5 @@ public record JobResponse
     public string JobId { get; init; }
     public JobStatus Status { get; init; }
     public string? Message { get; init; }
-	public string Hostname => Environment.MachineName;
+    public string Hostname => Environment.MachineName;
 }

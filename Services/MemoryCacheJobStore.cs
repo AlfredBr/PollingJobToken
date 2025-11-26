@@ -35,10 +35,10 @@ public class MemoryCacheJobStore : IJobStore
                     lock (_tombstoneLock)
                     {
                         _tombstones.AddLast((id, DateTimeOffset.UtcNow));
-						while (_tombstones.Count > _tombstoneLimit)
-						{
-							_tombstones.RemoveFirst();
-						}
+                        while (_tombstones.Count > _tombstoneLimit)
+                        {
+                            _tombstones.RemoveFirst();
+                        }
                     }
                     _logger.LogInformation("Job {JobId} evicted: {Reason}", id, reason);
                 }
