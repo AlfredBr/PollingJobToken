@@ -11,6 +11,7 @@ public class JobStatusCounts
     private int _completed;
     private int _failed;
     private int _canceled;
+    private int _expired;
 
     private JobStatusCounts() { }
 
@@ -19,6 +20,7 @@ public class JobStatusCounts
     public void IncrementCompleted() => System.Threading.Interlocked.Increment(ref _completed);
     public void IncrementFailed() => System.Threading.Interlocked.Increment(ref _failed);
     public void IncrementCanceled() => System.Threading.Interlocked.Increment(ref _canceled);
+    public void IncrementExpired() => System.Threading.Interlocked.Increment(ref _expired);
 
     // Live counters adjustments
     public void IncrementProcessing() => System.Threading.Interlocked.Increment(ref _processing);
@@ -33,7 +35,8 @@ public class JobStatusCounts
         var completed = System.Threading.Volatile.Read(ref _completed);
         var failed = System.Threading.Volatile.Read(ref _failed);
         var canceled = System.Threading.Volatile.Read(ref _canceled);
-        return new JobStatusCountsSnapshot(posted, processing, completed, failed, canceled);
+        var expired = System.Threading.Volatile.Read(ref _expired);
+        return new JobStatusCountsSnapshot(posted, processing, completed, failed, canceled, expired);
     }
 }
 
@@ -43,5 +46,6 @@ public record JobStatusCountsSnapshot(
     int Processing,
     int Completed,
     int Failed,
-    int Canceled
+    int Canceled,
+    int Expired
 );

@@ -135,6 +135,7 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
                         _tombstones.AddLast((id, now));
                         while (_tombstones.Count > _tombstoneLimit) _tombstones.RemoveFirst();
                     }
+                    JobStatusCounts.Instance.IncrementExpired();
                     _logger.LogInformation("Job {JobId} expired and removed during sweep", id);
                 }
             }

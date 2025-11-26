@@ -57,6 +57,11 @@ public class MemoryCacheJobStore : IJobStore
                         var keys = GetOrCreateKeySet();
                         keys.Remove(id);
                     }
+                    // Only count natural expiration (absolute/sliding or token) as expired
+                    if (reason is EvictionReason.Expired or EvictionReason.TokenExpired)
+                    {
+                        JobStatusCounts.Instance.IncrementExpired();
+                    }
                     _logger.LogInformation("Job {JobId} evicted: {Reason}", id, reason);
                 }
             },
