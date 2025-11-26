@@ -1,7 +1,8 @@
 Stop-Process -Name PollingJobToken -Force -ErrorAction SilentlyContinue
 dotnet clean
 Remove-Item -Recurse -Force .\bin -ErrorAction SilentlyContinue
-dotnet publish -c Release -r linux-arm64 --self-contained true
+# Publish as a single-file self-contained binary to minimize deployed files
+dotnet publish -c Release -r linux-arm64 -p:SelfContained=true -p:PublishSingleFile=true -p:DebugType=None
 
 $nodes = @("node0", "node1", "node2", "node3")
 $name = "aspnet"
