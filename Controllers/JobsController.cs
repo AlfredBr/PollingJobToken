@@ -114,4 +114,13 @@ public class JobsController : ControllerBase
 
         return NotFound();
     }
+
+    // GET /jobs/stats
+    [HttpGet("stats")]
+    public IActionResult GetStats()
+    {
+        _logger.LogInformation("GetStats request received");
+        var counts = _jobstore.GetStatusCounts();
+        return Ok(counts);
+    }
 }

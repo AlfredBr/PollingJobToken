@@ -1,5 +1,6 @@
 using PollingJobToken.Models;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace PollingJobToken.Services;
 
@@ -29,8 +30,9 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
     public JobResult Create()
     {
         var id = Guid.NewGuid().ToString("N");
-        var job = new JobResult { JobId = id, Status = JobStatus.Pending };
+        var job = new JobResult { JobId = id, Status = JobStatus.Posted };
         _jobs[id] = job;
+        JobStatusCounts.Instance.IncrementPosted();
         return job;
     }
 
@@ -45,8 +47,13 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
             {
                 return false;
             }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Canceled;
             job.CompletedAt = DateTimeOffset.UtcNow;
+            JobStatusCounts.Instance.IncrementCanceled();
             return true;
         }
         return false;
@@ -57,9 +64,10 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
         if (_jobs.TryGetValue(id, out var job))
         {
             if (job is null) { return; }
-            if (job.Status == JobStatus.Pending)
+            if (job.Status is JobStatus.Posted)
             {
                 job.Status = JobStatus.Processing;
+                JobStatusCounts.Instance.IncrementProcessing();
             }
         }
     }
@@ -69,10 +77,15 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
         if (_jobs.TryGetValue(id, out var job))
         {
             if (job is null) { return; }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Completed;
             job.Data = data;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;
+            JobStatusCounts.Instance.IncrementCompleted();
         }
     }
 
@@ -81,9 +94,14 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
         if (_jobs.TryGetValue(id, out var job))
         {
             if (job is null) { return; }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Failed;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;
+            JobStatusCounts.Instance.IncrementFailed();
         }
     }
 
@@ -136,8 +154,12 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
     public void PurgeJob(string id)
     {
         // Hard delete regardless of status; record tombstone if it existed.
-        if (_jobs.TryRemove(id, out _))
+        if (_jobs.TryRemove(id, out var removed))
         {
+            if (removed.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             var now = DateTimeOffset.UtcNow;
             lock (_tombstoneLock)
             {
@@ -146,6 +168,11 @@ public class ConcurrentDictionaryJobStore : IJobStore, IDisposable
                 _logger.LogWarning("Purging job {JobId} from concurrent store", id);
             }
         }
+    }
+
+    public JobStatusCountsSnapshot GetStatusCounts()
+    {
+        return JobStatusCounts.Instance.Snapshot();
     }
 
     public void Dispose()

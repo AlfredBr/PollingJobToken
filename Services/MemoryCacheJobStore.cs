@@ -12,11 +12,23 @@ public class MemoryCacheJobStore : IJobStore
     private readonly int _tombstoneLimit = 200; // prevent unbounded growth
     private readonly LinkedList<(string JobId, DateTimeOffset ExpiredAt)> _tombstones = new();
     private readonly object _tombstoneLock = new();
+    private readonly object _keysLock = new();
+    private const string KeysCacheKey = "__job_keys__";
 
     public MemoryCacheJobStore(IMemoryCache cache, ILogger<MemoryCacheJobStore> logger)
     {
         _cache = cache;
         _logger = logger;
+    }
+
+    private HashSet<string> GetOrCreateKeySet()
+    {
+        if (!_cache.TryGetValue<HashSet<string>>(KeysCacheKey, out var keyset) || keyset is null)
+        {
+            keyset = new HashSet<string>();
+            _cache.Set(KeysCacheKey, keyset, new MemoryCacheEntryOptions { Priority = CacheItemPriority.NeverRemove });
+        }
+        return keyset;
     }
 
     private MemoryCacheEntryOptions CreateOptions(CacheItemPriority priority)
@@ -30,7 +42,7 @@ public class MemoryCacheJobStore : IJobStore
         options.RegisterPostEvictionCallback(
             (key, value, reason, state) =>
             {
-                if (key is string id)
+                if (key is string id && id != KeysCacheKey)
                 {
                     lock (_tombstoneLock)
                     {
@@ -39,6 +51,11 @@ public class MemoryCacheJobStore : IJobStore
                         {
                             _tombstones.RemoveFirst();
                         }
+                    }
+                    lock (_keysLock)
+                    {
+                        var keys = GetOrCreateKeySet();
+                        keys.Remove(id);
                     }
                     _logger.LogInformation("Job {JobId} evicted: {Reason}", id, reason);
                 }
@@ -51,13 +68,23 @@ public class MemoryCacheJobStore : IJobStore
     private void ResetWithPriority(string id, JobResult job, CacheItemPriority priority)
     {
         _cache.Set(id, job, CreateOptions(priority));
+        lock (_keysLock)
+        {
+            var keys = GetOrCreateKeySet();
+            keys.Add(id);
+        }
     }
 
     public JobResult Create()
     {
         var id = Guid.NewGuid().ToString("N");
-        var job = new JobResult { JobId = id, Status = JobStatus.Pending };
+        var job = new JobResult { JobId = id, Status = JobStatus.Posted };
         _cache.Set(id, job, CreateOptions(CacheItemPriority.High));
+        lock (_keysLock)
+        {
+            GetOrCreateKeySet().Add(id);
+        }
+        JobStatusCounts.Instance.IncrementPosted();
         return job;
     }
 
@@ -73,9 +100,14 @@ public class MemoryCacheJobStore : IJobStore
         {
             if (job is null) { return false; }
             if (job.Status is JobStatus.Completed or JobStatus.Failed) { return false; }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Canceled;
             job.CompletedAt = DateTimeOffset.UtcNow;
             ResetWithPriority(id, job, CacheItemPriority.Normal);
+            JobStatusCounts.Instance.IncrementCanceled();
             return true;
         }
         return false;
@@ -86,10 +118,11 @@ public class MemoryCacheJobStore : IJobStore
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
             if (job is null) { return; }
-            if (job.Status == JobStatus.Pending)
+            if (job.Status is JobStatus.Posted)
             {
                 job.Status = JobStatus.Processing;
                 ResetWithPriority(id, job, CacheItemPriority.NeverRemove);
+                JobStatusCounts.Instance.IncrementProcessing();
             }
         }
     }
@@ -99,11 +132,16 @@ public class MemoryCacheJobStore : IJobStore
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
             if (job is null) { return; }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Completed;
             job.Data = data;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;
             ResetWithPriority(id, job, CacheItemPriority.Normal);
+            JobStatusCounts.Instance.IncrementCompleted();
         }
     }
 
@@ -112,10 +150,15 @@ public class MemoryCacheJobStore : IJobStore
         if (_cache.TryGetValue<JobResult>(id, out var job))
         {
             if (job is null) { return; }
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             job.Status = JobStatus.Failed;
             job.Message = message;
             job.CompletedAt = DateTimeOffset.UtcNow;
             ResetWithPriority(id, job, CacheItemPriority.Normal);
+            JobStatusCounts.Instance.IncrementFailed();
         }
     }
 
@@ -130,12 +173,23 @@ public class MemoryCacheJobStore : IJobStore
 
     public void PurgeJob(string id)
     {
-        // Attempt to remove the item explicitly. Eviction callback will create a tombstone.
-        // We only call Remove if it exists to avoid unnecessary eviction callback overhead.
-        if (_cache.TryGetValue<JobResult>(id, out _))
+        if (_cache.TryGetValue<JobResult>(id, out var job) && job is not null)
         {
+            if (job.Status is JobStatus.Processing)
+            {
+                JobStatusCounts.Instance.DecrementProcessing();
+            }
             _logger.LogWarning("Purging job {JobId} from memory cache", id);
             _cache.Remove(id);
+            lock (_keysLock)
+            {
+                GetOrCreateKeySet().Remove(id);
+            }
         }
+    }
+
+    public JobStatusCountsSnapshot GetStatusCounts()
+    {
+        return JobStatusCounts.Instance.Snapshot();
     }
 }

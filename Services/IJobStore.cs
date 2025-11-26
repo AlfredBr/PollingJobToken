@@ -15,4 +15,7 @@ public interface IJobStore
     bool WasRecentlyExpired(string id);
 
     void PurgeJob(string id);
+
+    // Returns counts by job status
+    JobStatusCountsSnapshot GetStatusCounts();
 }

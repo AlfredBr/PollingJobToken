@@ -2,7 +2,7 @@ namespace PollingJobToken.Models;
 
 public enum JobStatus
 {
-    Pending,
+    Posted,
     Processing,
     Completed,
     Failed,
