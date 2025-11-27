@@ -19,10 +19,12 @@ public class WeatherForecastJobProcessor
                 await Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
                 var date = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
                 var rng = new Random(HashCode.Combine(request.City.GetHashCode(), date.GetHashCode()));
-                var temperatureC = rng.Next(-10, 36);
+                var low = -10;
+                var high = 35;
+                var temperatureC = rng.Next(low, high);
                 var summaries = new[]
                 {
-                    "Freezing",
+                    "Freezing",   // coldest
                     "Bracing",
                     "Chilly",
                     "Cool",
@@ -31,9 +33,15 @@ public class WeatherForecastJobProcessor
                     "Balmy",
                     "Hot",
                     "Sweltering",
-                    "Scorching"
+                    "Scorching"   // hottest
                 };
-                var summary = summaries[rng.Next(summaries.Length)];
+
+                // Map temperature range [low .. high] to index [0 .. summaries.Length-1]
+                // Use linear bucketing with clamping to pick an appropriate word for the generated temperature.
+                var span = high - low;
+                var idx = Math.Clamp(((temperatureC + Math.Abs(low)) * summaries.Length) / span, 0, summaries.Length - 1);
+                var summary = summaries[idx];
+
                 return new WeatherForecastResponse
                 {
                     City = request.City,

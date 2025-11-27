@@ -12,6 +12,7 @@
     "language": "C#",
     "type": "project"
   },
+  "icon": "icon.png",
   "symbols": {
     "ServiceGuid": {
       "type": "generated",

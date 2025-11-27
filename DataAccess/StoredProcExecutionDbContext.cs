@@ -194,7 +194,7 @@ public abstract class StoredProcExecutionDbContext : DbContext
         where T1 : class, new()
         where T2 : class, new() =>
         ExecuteStoredProcedureAsync<T1, T2>(procedureName, cancellationToken, Array.Empty<SqlParameter>());
-    
+
     // Helper method for executing stored procedures with single result (token aware)
     public async Task<T?> ExecuteStoredProcedureFirstOrDefaultAsync<T>(string procedureName, CancellationToken cancellationToken, params SqlParameter[]? parameters) where T : class, new()
     {
